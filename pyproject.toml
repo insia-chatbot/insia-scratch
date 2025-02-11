@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "insia-scratch"
+version = "0.1.0"
+description = ""
+authors = ["Bongibault Romain <bongibault.romain@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+torch = "^2.6.0"
+tiktoken = "^0.8.0"
+datasets = "^3.2.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
