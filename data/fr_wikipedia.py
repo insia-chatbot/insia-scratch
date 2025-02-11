@@ -1,6 +1,7 @@
 import torch
 from torch.utils.data import Dataset
 from datasets import load_dataset
+from tokenization.tiktoken import tokenizer
 
 class FrWikipediaDataset(Dataset):
     def __init__(self, dataset):
@@ -10,7 +11,13 @@ class FrWikipediaDataset(Dataset):
         return len(self.dataset)
 
     def __getitem__(self, idx):
-        return self.dataset[idx]
+        data = self.dataset[idx]['text']
+        text = torch.stack(tokenizer.encode(data))
+        
+        x = text[:-1]
+        y = text[1:]
+
+        return x, y
 
 h_dataset = load_dataset("Kant1/French_Wikipedia_articles")
 
