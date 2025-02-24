@@ -12,7 +12,7 @@ class FrWikipediaDataset(Dataset):
 
     def __getitem__(self, idx):
         data = self.dataset[idx]['text']
-        text = torch.stack(tokenizer.encode(data))
+        text = tokenizer.encode(data)
         
         x = text[:-1]
         y = text[1:]
