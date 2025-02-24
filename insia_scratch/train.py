@@ -11,7 +11,7 @@ def train_model(model, train_loader, num_epochs=10, learning_rate=0.001, save=No
 
         for x_batch, y_batch in train_loader:
             # evaluate the loss
-            print(x_batch, y_batch)
+            print("train:", x_batch, y_batch)
             optimizer.zero_grad()
             logits, output = model(x_batch)
             loss = F.cross_entropy(output.view(-1, len(model.idx_to_char)), y_batch.view(-1))
