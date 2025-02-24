@@ -29,7 +29,19 @@ class Padder:
         return x + [tokenizer.encoding.eot_token] * (max_len - len(x))
     
     def collate_fn(self, batch):
-        print(batch)
+        # Array of couple
+
+        new_batch = []
+        # get the max len of x and y
+        max_len = max(len(x) for x, _ in batch)
+        max_len = max(max(len(y) for _, y in batch), max_len)
+
+        # Pad x and y
+        for x, y in batch:
+            x_padded = self.pad(x, max_len)
+            y_padded = self.pad(y, max_len)
+            new_batch.append((x_padded, y_padded))
+        batch = new_batch
 
         return default_collate(batch)
 
