@@ -36,6 +36,7 @@ class Padder:
         # get the max len of x and y
         max_len = max(len(x) for x, _ in batch)
         max_len = max(max(len(y) for _, y in batch), max_len)
+        max_len = max_len+1
 
         # Pad x and y
         for x, y in batch:
