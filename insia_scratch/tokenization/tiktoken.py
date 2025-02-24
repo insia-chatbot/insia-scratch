@@ -1,4 +1,5 @@
 import tiktoken
+from torch.utils.data.dataloader import default_collate
 
 class Tokenizer():
     def __init__(self):
@@ -29,6 +30,8 @@ class Padder:
     
     def collate_fn(batch):
         print(batch)
+
+        return default_collate(batch)
 
 
 tokenizer = Tokenizer()
