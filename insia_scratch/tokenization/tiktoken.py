@@ -41,6 +41,7 @@ class Padder:
         for x, y in batch:
             x_padded = self.pad(x, max_len)
             y_padded = self.pad(y, max_len)
+            print(x_padded, y_padded)
             new_batch.append((x_padded, y_padded))
         batch = new_batch
 
