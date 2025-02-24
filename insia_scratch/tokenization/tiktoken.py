@@ -1,5 +1,6 @@
 import tiktoken
 from torch.utils.data.dataloader import default_collate
+import torch
 
 class Tokenizer():
     def __init__(self):
@@ -40,7 +41,7 @@ class Padder:
         for x, y in batch:
             x_padded = self.pad(x, max_len)
             y_padded = self.pad(y, max_len)
-            new_batch.append((x_padded, y_padded))
+            new_batch.append((torch.tensor(x_padded), torch.tensor(y_padded)))
         batch = new_batch
 
         return default_collate(batch)
