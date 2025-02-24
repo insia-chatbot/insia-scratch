@@ -26,5 +26,10 @@ class Padder:
 
     def pad(self, x, max_len):
         return x + [tokenizer.encoding.eot_token] * (max_len - len(x))
+    
+    def collate_fn(batch):
+        print(batch)
+
 
 tokenizer = Tokenizer()
+padder = Padder(tokenizer)
