@@ -27,6 +27,10 @@ model_class = GPTLanguageModel
 tokenizer = TiktokenTokenizer(model_class.get_block_size())
 dataset = FrenchWikipediaDataset(tokenizer, device, model_class.get_block_size())
 
+
+
+# -- Loading existing model if exists
+base_model = None
 model = None
 
 if os.path.exists("models/" + model_name + "/"):
@@ -34,16 +38,21 @@ if os.path.exists("models/" + model_name + "/"):
 
     if i is not None:
         print(f"Loading model from iteration {i}...", )
-        model = torch.load("models/" + model_name + "/epoch_" + str(i) + ".pth", weights_only=False, map_location=device)
-
-
+        base_model = torch.load("models/" + model_name + "/epoch_" + str(i) + ".pth", weights_only=False, map_location=device)
 else:
     # create missing directories
     os.makedirs("models/" + model_name + "/", exist_ok=True)
 
-if model is None:
-    model = model_class(device, tokenizer.size())
+if base_model is None:
+    base_model = model_class(device, tokenizer.size())
+    model = base_model
 
+# -- Check if multiple GPUs are available and use DataParallel
+if torch.cuda.device_count() > 1:
+    print(f"Using {torch.cuda.device_count()} GPUs!")
+    model = torch.nn.DataParallel(model)
+
+# -- Load model to GPU device(s)
 model.to(device)
 
 print("--------")
@@ -64,4 +73,4 @@ action = input("What do you want to do? (train or prompt)? ")
 if action == "train":
     train(model, dataset, epochs, batch_size, iterations, estimate_iterations, learning_rate, save=model_name)
 else:
-    prompt(model, tokenizer, device)
+    prompt(base_model, tokenizer, device)
