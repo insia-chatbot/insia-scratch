@@ -45,7 +45,8 @@ else:
 
 if base_model is None:
     base_model = model_class(device, tokenizer.size())
-    model = base_model
+
+model = base_model
 
 # -- Check if multiple GPUs are available and use DataParallel
 # if torch.cuda.device_count() > 1:
