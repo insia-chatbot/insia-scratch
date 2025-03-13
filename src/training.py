@@ -14,7 +14,7 @@ def estimate_loss(model, train_dataset, test_dataset, collate_fn, iterations, ba
     for i, (x, y) in enumerate(train_loader):
         if i >= iterations: break
         _, loss = model(x, y)
-        train_losses[i] = loss
+        train_losses[i] = torch.mean(loss)
     out['train_loss'] = train_losses.mean().item()
 
     # test losses
@@ -22,7 +22,7 @@ def estimate_loss(model, train_dataset, test_dataset, collate_fn, iterations, ba
     for i, (x, y) in enumerate(test_loader):
         if i >= iterations: break
         _, loss = model(x, y)
-        test_losses[i] = loss
+        test_losses[i] = torch.mean(loss)
     out['test_loss'] = test_losses.mean().item()
 
     model.train()
@@ -55,7 +55,7 @@ def train(model, dataset, num_epochs=10, batch_size = 4, iterations=900, estimat
 
             logits, loss = model(x, y)
             optimizer.zero_grad(set_to_none=True)
-            loss.backward()
+            loss.mean().backward()
             optimizer.step()
 
-            print(f"Epoch {epoch+1}/{num_epochs}, Iteration {i+1}/{len(train_dataset)}, Loss: {loss.item()}")
+            print(f"Epoch {epoch+1}/{num_epochs}, Iteration {i+1}/{len(train_dataset)}, Loss: {loss.mean().item()}")
