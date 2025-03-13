@@ -1,13 +1,12 @@
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
-from tokenization.tiktoken import tokenizer
 
 n_embd = 384
 n_head = 6
 n_layer = 6
 dropout = 0.2
-block_size = 128
+block_size = 1024
 
 class Head(nn.Module):
     """ one head of self-attention """
@@ -85,18 +84,21 @@ class Block(nn.Module):
 
 class GPTLanguageModel(nn.Module):
 
-    def __init__(self, device):
+    def __init__(self, device, vocab_size):
         super().__init__()
         # each token directly reads off the logits for the next token from a lookup table
-        self.token_embedding_table = nn.Embedding(tokenizer.size(), n_embd)
+        self.token_embedding_table = nn.Embedding(vocab_size, n_embd)
         self.position_embedding_table = nn.Embedding(block_size, n_embd)
         self.blocks = nn.Sequential(*[Block(n_embd, n_head=n_head) for _ in range(n_layer)])
         self.ln_f = nn.LayerNorm(n_embd) # final layer norm
-        self.lm_head = nn.Linear(n_embd, tokenizer.size())
+        self.lm_head = nn.Linear(n_embd, vocab_size)
         self.device = device
 
         # better init, not covered in the original GPT video, but important, will cover in followup video
         self.apply(self._init_weights)
+
+    def get_block_size():
+        return block_size
 
     def _init_weights(self, module):
         if isinstance(module, nn.Linear):

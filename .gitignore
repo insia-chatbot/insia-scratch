@@ -5,3 +5,4 @@ __pycache__
 venv/
 poetry.lock
 *.pth
+./models
