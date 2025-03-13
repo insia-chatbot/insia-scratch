@@ -48,9 +48,10 @@ if base_model is None:
     model = base_model
 
 # -- Check if multiple GPUs are available and use DataParallel
-if torch.cuda.device_count() > 1:
-    print(f"Using {torch.cuda.device_count()} GPUs!")
-    model = torch.nn.DataParallel(model)
+# if torch.cuda.device_count() > 1:
+#     print(f"Using {torch.cuda.device_count()} GPUs!")
+#     model = torch.nn.DataParallel(base_model)
+    
 
 # -- Load model to GPU device(s)
 model.to(device)
