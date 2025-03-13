@@ -1,7 +1,8 @@
 import torch
+from losses import get_last_loss, write_loss
 
 @torch.no_grad()
-def estimate_loss(model, train_dataset, test_dataset, collate_fn, iterations, batch_size):
+def estimate_loss(model, train_dataset, test_dataset, collate_fn, iterations, batch_size, iteration, save=None):
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_fn)
     test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_fn)
 
@@ -26,6 +27,9 @@ def estimate_loss(model, train_dataset, test_dataset, collate_fn, iterations, ba
 
     model.train()
 
+    if save:
+        write_loss(iteration, out, "models/" + save + "/data.csv")
+
     return out
 
 def train(model, dataset, num_epochs=10, batch_size = 4, iterations=900, estimate_iterations=300, learning_rate=0.001, save=None):
@@ -33,16 +37,20 @@ def train(model, dataset, num_epochs=10, batch_size = 4, iterations=900, estimat
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=dataset.collate_fn)
 
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+    last_iteration, _, _ = get_last_loss("models/" + save + "/data.csv")
+
+    if last_iteration is None:
+        last_iteration = 0
 
     for epoch in range(num_epochs):
 
         for i, (x, y) in enumerate(train_loader):
             if i % iterations == 0: 
-                losses = estimate_loss(model, train_dataset, test_dataset, dataset.collate_fn, estimate_iterations, batch_size)
+                losses = estimate_loss(model, train_dataset, test_dataset, dataset.collate_fn, estimate_iterations, batch_size, last_iteration + i * batch_size, save)
                 print(f"Epoch {epoch+1}/{num_epochs}, Train loss: {losses['train_loss']}, Test loss: {losses['test_loss']}")
 
                 if save:
-                    torch.save(model, save)
+                    torch.save(model, "models/" + save + "/epoch_" + str(last_iteration + i * batch_size) + ".pth" )
                     print(f"Model saved as {save}")
 
             logits, loss = model(x, y)
@@ -51,5 +59,3 @@ def train(model, dataset, num_epochs=10, batch_size = 4, iterations=900, estimat
             optimizer.step()
 
             print(f"Epoch {epoch+1}/{num_epochs}, Iteration {i+1}/{len(train_dataset)}, Loss: {loss.item()}")
-        
-
