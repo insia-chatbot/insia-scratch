@@ -20,15 +20,16 @@ class TiktokenTokenizer:
 
         return encoded
 
-    def decode(self, str):
-        # if encoutring eot token, remove it and all the tokens after it    
-        try :
-            eot_index = str.index(self.encoding.eot_token)
-        except ValueError:
-            eot_index = -1
+    def decode(self, str, ignore_eot=False):
+        if not ignore_eot:
+            # if encoutring eot token, remove it and all the tokens after it    
+            try :
+                eot_index = str.index(self.encoding.eot_token)
+            except ValueError:
+                eot_index = -1
 
-        if eot_index != -1:
-            str = str[:eot_index]
+            if eot_index != -1:
+                str = str[:eot_index]
 
         return self.encoding.decode(str)
     

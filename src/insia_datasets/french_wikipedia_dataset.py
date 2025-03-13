@@ -19,16 +19,46 @@ class FrenchWikipediaDataset(Dataset):
         
         return encoded
     
-    def collate_fn(self, batch):
+    def collate_truncate_fn(self, batch):
+        x_batch = []
+        y_batch = []
+
+        minimum = min([len(data) for data in batch])
+
+        for i, data in enumerate(batch):
+            if (len(data) < 16):
+                batch[i] = self[torch.randint(0, len(self.dataset), (1,)).item()]
+                return self.collate_truncate_fn(batch)
+            
+            # Truncate data and pick a random start point
+            length = min(self.block_size, minimum)
+            start = torch.randint(0, max(1, len(data) - length), (1,)).item()
+
+            x = data[start:start+length-1]
+            y = data[start+1:start+length]
+
+            x_batch.append(torch.tensor(x, device=self.device))
+            y_batch.append(torch.tensor(y, device=self.device))
+
+        sx, sy = torch.stack(x_batch), torch.stack(y_batch)
+
+        sx.to(self.device)
+        sy.to(self.device)
+
+        return sx, sy
+
+        
+    
+    def collate_padding_fn(self, batch):
         x_batch = []
         y_batch = []
 
         longuest = max([len(data) for data in batch])
 
         for i, data in enumerate(batch):
-            if (len(data) < 4):
+            if (len(data) < 16):
                 batch[i] = self[torch.randint(0, len(self.dataset), (1,)).item()]
-                return self.collate_fn(batch)
+                return self.collate_padding_fn(batch)
             
             # Pad data
             padding = longuest - len(data)

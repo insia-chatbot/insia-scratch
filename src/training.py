@@ -11,6 +11,7 @@ def estimate_loss(model, train_dataset, test_dataset, collate_fn, iterations, ba
  
     # train losses
     train_losses = torch.zeros(iterations)
+
     for i, (x, y) in enumerate(train_loader):
         if i >= iterations: break
         _, loss = model(x, y)
@@ -34,10 +35,12 @@ def estimate_loss(model, train_dataset, test_dataset, collate_fn, iterations, ba
 
 def train(model, dataset, num_epochs=10, batch_size = 4, iterations=900, estimate_iterations=300, learning_rate=0.001, save=None):
     train_dataset, test_dataset = torch.utils.data.random_split(dataset, [0.9, 0.1])
-    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=dataset.collate_fn)
+    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=dataset.collate_truncate_fn)
 
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     last_iteration, _, _ = get_last_loss("models/" + save + "/data.csv")
+
+    total = len(train_loader)
 
     if last_iteration is None:
         last_iteration = 0
@@ -46,7 +49,7 @@ def train(model, dataset, num_epochs=10, batch_size = 4, iterations=900, estimat
 
         for i, (x, y) in enumerate(train_loader):
             if i % iterations == 0: 
-                losses = estimate_loss(model, train_dataset, test_dataset, dataset.collate_fn, estimate_iterations, batch_size, last_iteration + i * batch_size, save)
+                losses = estimate_loss(model, train_dataset, test_dataset, dataset.collate_truncate_fn, estimate_iterations, batch_size, last_iteration + i * batch_size, save)
                 print(f"Epoch {epoch+1}/{num_epochs}, Train loss: {losses['train_loss']}, Test loss: {losses['test_loss']}")
 
                 if save:
@@ -58,4 +61,4 @@ def train(model, dataset, num_epochs=10, batch_size = 4, iterations=900, estimat
             loss.backward()
             optimizer.step()
 
-            print(f"Epoch {epoch+1}/{num_epochs}, Iteration {i+1}/{len(train_dataset)}, Loss: {loss.item()}")
+            print(f"Epoch {epoch+1}/{num_epochs}, Iteration {i+1}/{total}, Loss: {loss.item()}")

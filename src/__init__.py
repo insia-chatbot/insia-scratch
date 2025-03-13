@@ -15,16 +15,16 @@ from losses import get_last_loss
 # --- Constants ---
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 learning_rate = 1e-4
-batch_size = 8
+batch_size = 64
 epochs = 10
-iterations = 1000
+iterations = 5000
 estimate_iterations = 500
 
-model_name = "gpt_v0_ctx1024_ascii"
+model_name = "gpt_v0_ctx1024_tiktoken_truncate"
 model_class = GPTLanguageModel
 # --- Constants ---
 
-tokenizer = ASCIITokenizer(model_class.get_block_size())
+tokenizer = TiktokenTokenizer(model_class.get_block_size())
 dataset = FrenchWikipediaDataset(tokenizer, device, model_class.get_block_size())
 
 model = None
@@ -34,7 +34,7 @@ if os.path.exists("models/" + model_name + "/"):
 
     if i is not None:
         print(f"Loading model from iteration {i}...", )
-        model = torch.load("models/" + model_name, weights_only=False, map_location=device)
+        model = torch.load("models/" + model_name + "/epoch_" + str(i) + ".pth", weights_only=False, map_location=device)
 
 
 else:
