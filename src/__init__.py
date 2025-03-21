@@ -18,6 +18,11 @@ from prompting import prompt
 from training import train
 from losses import get_last_loss
 
+def init_process(rank, size, backend='nccl'):
+    os.environ['MASTER_ADDR'] = 'localhost'
+    os.environ['MASTER_PORT'] = '12355'
+    init_process_group(backend='nccl', rank=rank, world_size=size)
+
 # --- Constants ---
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 learning_rate = 1e-4
